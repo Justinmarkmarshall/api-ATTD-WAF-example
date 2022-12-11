@@ -28,4 +28,9 @@
       <ProjectReference Include="..\FileImport.Api\FileImport.Api.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Files\Data.csv" />
+      <Content Include="Files\Data.csv" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -50,12 +51,10 @@ public class ImportControllerTests : IClassFixture<WebApplicationFactory<IApiMar
         var response = await _httpClient.GetAsync("import/");
         
         response.EnsureSuccessStatusCode(); // Status Code 200-299
-        Assert.Equal("text/html; charset=utf-8", 
-            response.Content.Headers.ContentType.ToString());
     }
     //so this can infact be turned into an acceptance test, the question is, if I run multiple feature files will there be multiple different instances of the API instantiated
     [Fact]
-    public async Task ImportTheFile()
+    public async Task ImportTheFileShouldFail()
     {
         var toConvert = new ImportRequest()
         {
@@ -79,4 +78,42 @@ public class ImportControllerTests : IClassFixture<WebApplicationFactory<IApiMar
         
         importControllerResponse?.Success.Should().BeFalse();
     }
+
+    //does this create in the actual project file directory?
+    [Fact]
+    public async Task ImportTheFileShouldPass()
+    {
+        var toConvert = new ImportRequest()
+        {
+            InputLocation = "\\..\\..\\..\\Files\\Data.csv",
+            OutputLocation = "\\..\\..\\..\\Files\\ImportTextAcpTest.txt"
+        };
+
+        var json = JsonSerializer.Serialize(toConvert);
+        HttpRequestMessage request = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri("import/", UriKind.Relative),
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        
+        var response = await _httpClient.SendAsync(request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+    }
+    
+    [Fact]
+    public async Task ShouldReturnTheCreatedFile()
+    {
+        var location = "\\..\\..\\..\\Files\\ImportTextAcpTest.txt";
+        // string readFile = $"location={location}";
+        //var response = await _httpClient.GetAsync($"import/confirm/{location.ToString()}");
+        var response = await _httpClient.GetAsync($"import/confirm?location={location}");
+        
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+
+        var text = await response.Content.ReadAsStringAsync();
+        // text.Should().Contain("Unique Id");
+    }
+    
 }

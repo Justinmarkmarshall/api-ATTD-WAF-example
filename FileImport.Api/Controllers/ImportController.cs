@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using FileImport.Api.Contracts.Requests;
 using FileImport.Api.Mapping;
 using FileImport.Api.Services;
@@ -29,12 +31,35 @@ namespace FileImport.Api.Controllers
             else return Problem(result.Message);
         }
 
+        //[HttpGet("confirm/{location}")]
+        [HttpGet("confirm")]
+        //public async Task<IActionResult> Confirm([FromRoute] string location)
+        public async Task<IActionResult> Confirm(string location)
+        {
+            var text = "";
+            var readLocation = $"{Directory.GetCurrentDirectory()}";
+            var entireReadLocation = $"{readLocation}{location}";
+
+            try
+            {
+                using (var sr = new StreamReader(entireReadLocation))
+                {
+                    text = await sr.ReadToEndAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+            
+            return Accepted(text);
+        }
+        
         [HttpGet]
         public IActionResult Get()
         {
             return Accepted();
         }
-        
         
         
     }
