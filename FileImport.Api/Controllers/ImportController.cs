@@ -30,10 +30,8 @@ namespace FileImport.Api.Controllers
             }
             else return Problem(result.Message);
         }
-
-        //[HttpGet("confirm/{location}")]
+        
         [HttpGet("confirm")]
-        //public async Task<IActionResult> Confirm([FromRoute] string location)
         public async Task<IActionResult> Confirm(string location)
         {
             var text = "";
@@ -60,7 +58,5 @@ namespace FileImport.Api.Controllers
         {
             return Accepted();
         }
-        
-        
     }
 }
